@@ -73,13 +73,24 @@ export default function App() {
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
       <div
-        className="relative flex items-center justify-between px-4 py-5"
-        style={{ background: "linear-gradient(135deg, #2481cc 0%, #6c3fc5 100%)" }}
+        className="relative flex items-center justify-between px-4 py-5 overflow-hidden"
+        style={{ minHeight: 90 }}
       >
-        <h1 className="text-lg font-bold text-white tracking-tight">Семейный календарь</h1>
+        <img
+          src="/family.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 100%)" }} />
+        <h1
+          className="relative font-spore tracking-wide"
+          style={{ color: "#d0e8ff", fontSize: 22, textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}
+        >
+          Семейный календарь
+        </h1>
         <button
           onClick={() => setShowNewTask(true)}
-          className="bg-white/20 backdrop-blur-sm text-white text-sm rounded-xl px-3 py-1.5 font-medium border border-white/30"
+          className="relative bg-white/20 backdrop-blur-sm text-white text-sm rounded-xl px-3 py-1.5 font-medium border border-white/30"
         >
           + Задача
         </button>
