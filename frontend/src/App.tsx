@@ -83,7 +83,7 @@ export default function App() {
         <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-4 pb-4">
           <h1
             className="font-semibold tracking-tight"
-            style={{ color: "#60a5fa", fontSize: 20, textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}
+            style={{ color: "#ffffff", fontSize: 26, textShadow: "0 2px 8px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.9)" }}
           >
             Семейный календарь
           </h1>
