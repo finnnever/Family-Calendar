@@ -126,27 +126,29 @@ async def update_task(
         raise HTTPException(status_code=404, detail="Task not found")
 
     STATUS_LABELS = {"todo": "К выполнению", "in_progress": "В процессе", "done": "Готово"}
+    PRIORITY_LABELS = {"low": "Низкий", "medium": "Средний", "high": "Высокий"}
     status_changed = update.status is not None and update.status != old_status
 
-    if status_changed and update.status == "done":
-        await notify_group(
-            f"✅ <b>Задача выполнена</b>\n"
-            f"«{task.title}»\n"
-            f"Выполнил: {current_user.first_name}"
-        )
-    elif status_changed:
-        await notify_group(
-            f"🔄 <b>Статус изменён</b>\n"
-            f"«{task.title}» → {STATUS_LABELS[update.status]}\n"
-            f"Изменил: {current_user.first_name}"
-        )
-    else:
+    changes = []
+    if status_changed:
+        changes.append(f"Статус: {STATUS_LABELS[update.status]}")
+    if update.priority is not None and update.priority != old_task.priority:
+        changes.append(f"Приоритет: {PRIORITY_LABELS[update.priority]}")
+    if update.title is not None and update.title != old_task.title:
+        changes.append(f"Название: «{update.title}»")
+    if update.deadline != old_task.deadline:
         deadline_str = task.deadline.strftime("%d.%m.%Y %H:%M") if task.deadline else "не указан"
+        changes.append(f"Дедлайн: {deadline_str}")
+    if update.assignee_id != old_task.assignee_id:
+        changes.append(f"Исполнитель: {task.assignee.first_name if task.assignee else '—'}")
+
+    if changes:
+        icon = "✅" if status_changed and update.status == "done" else "✏️"
         await notify_group(
-            f"✏️ <b>Задача обновлена</b>\n"
+            f"{icon} <b>Задача изменена</b>\n"
             f"«{task.title}»\n"
-            f"Дедлайн: {deadline_str}\n"
-            f"Изменил: {current_user.first_name}"
+            + "\n".join(changes) +
+            f"\n\nИзменил: {current_user.first_name}"
         )
     return task
 
