@@ -118,24 +118,29 @@ async def update_task(
     current_user: UserBase = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    old_task = crud.get_task(db, task_id)
+    old_status = old_task.status if old_task else None
+
     task = crud.update_task(db, task_id, update)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
     STATUS_LABELS = {"todo": "К выполнению", "in_progress": "В процессе", "done": "Готово"}
-    if update.status == "done":
+    status_changed = update.status is not None and update.status != old_status
+
+    if status_changed and update.status == "done":
         await notify_group(
             f"✅ <b>Задача выполнена</b>\n"
             f"«{task.title}»\n"
             f"Выполнил: {current_user.first_name}"
         )
-    elif update.status in ("todo", "in_progress"):
+    elif status_changed:
         await notify_group(
             f"🔄 <b>Статус изменён</b>\n"
             f"«{task.title}» → {STATUS_LABELS[update.status]}\n"
             f"Изменил: {current_user.first_name}"
         )
-    elif update.status is None:
+    else:
         deadline_str = task.deadline.strftime("%d.%m.%Y %H:%M") if task.deadline else "не указан"
         await notify_group(
             f"✏️ <b>Задача обновлена</b>\n"
