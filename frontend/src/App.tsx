@@ -72,11 +72,14 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b">
-        <h1 className="text-base font-semibold">📅 Семейный календарь</h1>
+      <div
+        className="relative flex items-center justify-between px-4 py-5"
+        style={{ background: "linear-gradient(135deg, #2481cc 0%, #6c3fc5 100%)" }}
+      >
+        <h1 className="text-lg font-bold text-white tracking-tight">Семейный календарь</h1>
         <button
           onClick={() => setShowNewTask(true)}
-          className="bg-blue-500 text-white text-sm rounded-lg px-3 py-1.5 font-medium"
+          className="bg-white/20 backdrop-blur-sm text-white text-sm rounded-xl px-3 py-1.5 font-medium border border-white/30"
         >
           + Задача
         </button>

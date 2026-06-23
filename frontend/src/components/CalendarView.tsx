@@ -32,9 +32,10 @@ function cap(s: string) {
 
 /* ---------- MonthView ---------- */
 
-function MonthView({ tasks, date, onSelectDay, onSelectTask }: {
+function MonthView({ tasks, date, selectedDate, onSelectDay, onSelectTask }: {
   tasks: Task[];
   date: Date;
+  selectedDate: Date;
   onSelectDay: (d: Date) => void;
   onSelectTask: (t: Task) => void;
 }) {
@@ -67,7 +68,7 @@ function MonthView({ tasks, date, onSelectDay, onSelectTask }: {
           const dayTasks = getTasksForDay(tasks, day);
           const inMonth = isSameMonth(day, date);
           const today = isToday(day);
-          const selected = isSameDay(day, date);
+          const selected = isSameDay(day, selectedDate);
 
           return (
             <div
@@ -106,12 +107,12 @@ function MonthView({ tasks, date, onSelectDay, onSelectTask }: {
       </div>
 
       {/* Selected day tasks */}
-      {getTasksForDay(tasks, date).length > 0 && (
+      {getTasksForDay(tasks, selectedDate).length > 0 && (
         <div className="mt-4 space-y-2">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1">
-            {cap(format(date, "d MMMM", { locale: ru }))}
+            {cap(format(selectedDate, "d MMMM", { locale: ru }))}
           </p>
-          {getTasksForDay(tasks, date).map(t => (
+          {getTasksForDay(tasks, selectedDate).map(t => (
             <TaskChip key={t.id} task={t} onClick={() => onSelectTask(t)} />
           ))}
         </div>
@@ -236,7 +237,9 @@ function TaskChip({ task, onClick }: { task: Task; onClick: () => void }) {
 /* ---------- Main ---------- */
 
 export default function CalendarView({ tasks, onSelectTask }: Props) {
-  const [date, setDate] = useState(new Date());
+  const today = new Date();
+  const [navDate, setNavDate] = useState(today);
+  const [selectedDate, setSelectedDate] = useState(today);
   const [view, setView] = useState<View>("month");
 
   const VIEWS: { key: View; label: string }[] = [
@@ -246,25 +249,25 @@ export default function CalendarView({ tasks, onSelectTask }: Props) {
   ];
 
   function navigatePrev() {
-    if (view === "month") setDate(subMonths(date, 1));
-    else if (view === "week") setDate(subWeeks(date, 1));
-    else setDate(addDays(date, -1));
+    if (view === "month") setNavDate(subMonths(navDate, 1));
+    else if (view === "week") setNavDate(subWeeks(navDate, 1));
+    else setNavDate(addDays(navDate, -1));
   }
 
   function navigateNext() {
-    if (view === "month") setDate(addMonths(date, 1));
-    else if (view === "week") setDate(addWeeks(date, 1));
-    else setDate(addDays(date, 1));
+    if (view === "month") setNavDate(addMonths(navDate, 1));
+    else if (view === "week") setNavDate(addWeeks(navDate, 1));
+    else setNavDate(addDays(navDate, 1));
   }
 
   function getTitle() {
-    if (view === "month") return cap(format(date, "LLLL yyyy", { locale: ru }));
+    if (view === "month") return cap(format(navDate, "LLLL yyyy", { locale: ru }));
     if (view === "week") {
-      const ws = startOfWeek(date, { weekStartsOn: 1 });
-      const we = endOfWeek(date, { weekStartsOn: 1 });
+      const ws = startOfWeek(navDate, { weekStartsOn: 1 });
+      const we = endOfWeek(navDate, { weekStartsOn: 1 });
       return `${format(ws, "d MMM", { locale: ru })} – ${format(we, "d MMM", { locale: ru })}`;
     }
-    return cap(format(date, "d MMMM yyyy", { locale: ru }));
+    return cap(format(navDate, "d MMMM yyyy", { locale: ru }));
   }
 
   return (
@@ -310,16 +313,17 @@ export default function CalendarView({ tasks, onSelectTask }: Props) {
           {view === "month" && (
             <MonthView
               tasks={tasks}
-              date={date}
-              onSelectDay={setDate}
+              date={navDate}
+              selectedDate={selectedDate}
+              onSelectDay={d => { setSelectedDate(d); setNavDate(d); }}
               onSelectTask={onSelectTask}
             />
           )}
           {view === "week" && (
-            <WeekView tasks={tasks} date={date} onSelectTask={onSelectTask} />
+            <WeekView tasks={tasks} date={navDate} onSelectTask={onSelectTask} />
           )}
           {view === "day" && (
-            <DayView tasks={tasks} date={date} onSelectTask={onSelectTask} />
+            <DayView tasks={tasks} date={navDate} onSelectTask={onSelectTask} />
           )}
         </div>
       </div>
