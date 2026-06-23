@@ -118,8 +118,8 @@ async def update_task(
     current_user: UserBase = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    from datetime import datetime, timezone
-    if update.deadline and update.deadline < datetime.now(timezone.utc).replace(tzinfo=None):
+    from datetime import datetime
+    if update.deadline and update.deadline < datetime.utcnow():
         raise HTTPException(status_code=400, detail="Дедлайн не может быть в прошлом")
     task = crud.update_task(db, task_id, update)
     if not task:
