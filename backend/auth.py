@@ -28,9 +28,6 @@ def validate_init_data(init_data: str, bot_token: str) -> dict:
 
 
 def get_current_user(x_init_data: str = Header(...)) -> UserBase:
-    import logging
-    logger = logging.getLogger("auth")
-    logger.warning(f"[AUTH] initData length={len(x_init_data)} value={x_init_data[:80]!r}")
     token = os.getenv("TELEGRAM_BOT_TOKEN", "")
     if not token:
         raise HTTPException(status_code=500, detail="Bot token not configured")
