@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   addDays, addMonths, subMonths, isSameMonth, isSameDay, isToday, format,
-  addWeeks, subWeeks, startOfDay, getHours,
+  addWeeks, subWeeks, getHours,
 } from "date-fns";
 import { ru } from "date-fns/locale";
 import type { Task } from "../api";
