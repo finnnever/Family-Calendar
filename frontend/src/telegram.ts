@@ -14,7 +14,10 @@ export function getTelegramUser() {
 }
 
 export function getInitData(): string {
-  return WebApp.initData || "";
+  // Try SDK first, fall back to raw window object
+  if (WebApp.initData) return WebApp.initData;
+  const w = window as any;
+  return w?.Telegram?.WebApp?.initData || "";
 }
 
 export const tg = WebApp;
