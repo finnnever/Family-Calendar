@@ -98,6 +98,11 @@ async def create_task(
     current_user: UserBase = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    from datetime import datetime
+    if task.deadline:
+        deadline_naive = task.deadline.replace(tzinfo=None)
+        if deadline_naive < datetime.utcnow():
+            raise HTTPException(status_code=400, detail="Дедлайн не может быть в прошлом")
     crud.upsert_user(db, current_user)
     new_task = crud.create_task(db, task, current_user.telegram_id)
     deadline_str = new_task.deadline.strftime("%d.%m.%Y %H:%M") if new_task.deadline else "не указан"
@@ -118,6 +123,11 @@ async def update_task(
     current_user: UserBase = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    from datetime import datetime
+    if update.deadline:
+        deadline_naive = update.deadline.replace(tzinfo=None)
+        if deadline_naive < datetime.utcnow():
+            raise HTTPException(status_code=400, detail="Дедлайн не может быть в прошлом")
     old_task = crud.get_task(db, task_id)
     old_status = old_task.status if old_task else None
 
