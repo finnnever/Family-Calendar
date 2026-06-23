@@ -70,30 +70,30 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="flex flex-col bg-white" style={{ minHeight: "100dvh" }}>
       {/* Header */}
-      <div
-        className="relative flex items-center justify-between px-4 py-5 overflow-hidden"
-        style={{ minHeight: 90 }}
-      >
+      <div className="relative overflow-hidden" style={{ height: 160 }}>
         <img
           src="/family.jpg"
           alt=""
-          className="absolute inset-0 w-full h-full object-cover object-center"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: "center 20%" }}
         />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 100%)" }} />
-        <h1
-          className="relative font-spore tracking-wide"
-          style={{ color: "#d0e8ff", fontSize: 22, textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}
-        >
-          Семейный календарь
-        </h1>
-        <button
-          onClick={() => setShowNewTask(true)}
-          className="relative bg-white/20 backdrop-blur-sm text-white text-sm rounded-xl px-3 py-1.5 font-medium border border-white/30"
-        >
-          + Задача
-        </button>
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.5) 100%)" }} />
+        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-4 pb-4">
+          <h1
+            className="font-semibold tracking-tight"
+            style={{ color: "#60a5fa", fontSize: 20, textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}
+          >
+            Семейный календарь
+          </h1>
+          <button
+            onClick={() => setShowNewTask(true)}
+            className="bg-white/20 backdrop-blur-sm text-white text-sm rounded-xl px-3 py-1.5 font-medium border border-white/30"
+          >
+            + Задача
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
