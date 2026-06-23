@@ -14,6 +14,7 @@ import crud
 import schemas
 from auth import get_current_user
 from schemas import UserBase
+from notify import notify_group
 
 Base.metadata.create_all(bind=engine)
 
@@ -28,11 +29,15 @@ async def send_reminders(hours: int):
         tasks = crud.get_tasks_needing_reminder(db, hours)
         for task in tasks:
             label = "24 часа" if hours == 24 else "1 час"
+            assignee_name = task.assignee.first_name if task.assignee else "—"
             text = (
-                f"⏰ Напоминание: задача «{task.title}» должна быть выполнена через {label}!"
+                f"⏰ <b>Напоминание</b>\n"
+                f"Задача «{task.title}» должна быть выполнена через {label}!\n"
+                f"Исполнитель: {assignee_name}"
             )
             try:
-                await bot.send_message(chat_id=task.assignee_id, text=text)
+                await bot.send_message(chat_id=task.assignee_id, text=text, parse_mode="HTML")
+                await notify_group(text)
                 crud.mark_reminder_sent(db, task, hours)
             except Exception:
                 pass
@@ -88,17 +93,26 @@ def list_tasks(
 
 
 @app.post("/tasks", response_model=schemas.TaskOut)
-def create_task(
+async def create_task(
     task: schemas.TaskCreate,
     current_user: UserBase = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     crud.upsert_user(db, current_user)
-    return crud.create_task(db, task, current_user.telegram_id)
+    new_task = crud.create_task(db, task, current_user.telegram_id)
+    deadline_str = new_task.deadline.strftime("%d.%m.%Y %H:%M") if new_task.deadline else "не указан"
+    assignee_name = new_task.assignee.first_name if new_task.assignee else "—"
+    await notify_group(
+        f"📋 <b>Новая задача</b>\n"
+        f"«{new_task.title}»\n"
+        f"Исполнитель: {assignee_name}\n"
+        f"Дедлайн: {deadline_str}"
+    )
+    return new_task
 
 
 @app.patch("/tasks/{task_id}", response_model=schemas.TaskOut)
-def update_task(
+async def update_task(
     task_id: int,
     update: schemas.TaskUpdate,
     current_user: UserBase = Depends(get_current_user),
@@ -107,6 +121,12 @@ def update_task(
     task = crud.update_task(db, task_id, update)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+    if update.status == "done":
+        await notify_group(
+            f"✅ <b>Задача выполнена</b>\n"
+            f"«{task.title}»\n"
+            f"Выполнил: {current_user.first_name}"
+        )
     return task
 
 

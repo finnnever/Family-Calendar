@@ -11,16 +11,26 @@ BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = InlineKeyboardMarkup([[
-        InlineKeyboardButton(
-            "📅 Открыть календарь",
-            web_app=WebAppInfo(url=WEBAPP_URL),
+    is_private = update.message.chat.type == "private"
+    if is_private:
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton(
+                "📅 Открыть календарь",
+                web_app=WebAppInfo(url=WEBAPP_URL),
+            )
+        ]])
+        await update.message.reply_text(
+            "Привет! Нажми кнопку, чтобы открыть семейный календарь задач.",
+            reply_markup=keyboard,
         )
-    ]])
-    await update.message.reply_text(
-        "Привет! Нажми кнопку, чтобы открыть семейный календарь задач.",
-        reply_markup=keyboard,
-    )
+    else:
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton("📅 Открыть календарь", url=WEBAPP_URL)
+        ]])
+        await update.message.reply_text(
+            "Семейный календарь задач — нажми кнопку ниже:",
+            reply_markup=keyboard,
+        )
 
 
 def run_bot():
