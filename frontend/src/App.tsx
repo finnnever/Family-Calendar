@@ -80,7 +80,7 @@ export default function App() {
           style={{ objectPosition: "center 20%" }}
         />
         <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.5) 100%)" }} />
-        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-4 pb-4">
+        <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between px-4 pb-4">
           <h1
             className="font-semibold tracking-tight"
             style={{ color: "#ffffff", fontSize: 26, textShadow: "0 2px 8px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.9)" }}
@@ -89,9 +89,10 @@ export default function App() {
           </h1>
           <button
             onClick={() => setShowNewTask(true)}
-            className="bg-white/20 backdrop-blur-sm text-white text-sm rounded-xl px-3 py-1.5 font-medium border border-white/30"
+            className="bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl border border-white/30 flex items-center justify-center"
+            style={{ width: 40, height: 40, fontSize: 24 }}
           >
-            + Задача
+            +
           </button>
         </div>
       </div>
