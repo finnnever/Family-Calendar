@@ -118,26 +118,51 @@ async def update_task(
     current_user: UserBase = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    from datetime import datetime, timezone
+    if update.deadline and update.deadline < datetime.now(timezone.utc).replace(tzinfo=None):
+        raise HTTPException(status_code=400, detail="Дедлайн не может быть в прошлом")
     task = crud.update_task(db, task_id, update)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+
+    STATUS_LABELS = {"todo": "К выполнению", "in_progress": "В процессе", "done": "Готово"}
     if update.status == "done":
         await notify_group(
             f"✅ <b>Задача выполнена</b>\n"
             f"«{task.title}»\n"
             f"Выполнил: {current_user.first_name}"
         )
+    elif update.status in ("todo", "in_progress"):
+        await notify_group(
+            f"🔄 <b>Статус изменён</b>\n"
+            f"«{task.title}» → {STATUS_LABELS[update.status]}\n"
+            f"Изменил: {current_user.first_name}"
+        )
+    elif update.status is None:
+        deadline_str = task.deadline.strftime("%d.%m.%Y %H:%M") if task.deadline else "не указан"
+        await notify_group(
+            f"✏️ <b>Задача обновлена</b>\n"
+            f"«{task.title}»\n"
+            f"Дедлайн: {deadline_str}\n"
+            f"Изменил: {current_user.first_name}"
+        )
     return task
 
 
 @app.delete("/tasks/{task_id}")
-def delete_task(
+async def delete_task(
     task_id: int,
     current_user: UserBase = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    if not crud.delete_task(db, task_id):
+    task = crud.get_task(db, task_id)
+    if not task or not crud.delete_task(db, task_id):
         raise HTTPException(status_code=404, detail="Task not found")
+    await notify_group(
+        f"🗑 <b>Задача удалена</b>\n"
+        f"«{task.title}»\n"
+        f"Удалил: {current_user.first_name}"
+    )
     return {"ok": True}
 
 

@@ -92,6 +92,7 @@ export default function TaskModal({ task, users, onClose, onSaved }: Props) {
               type="datetime-local"
               className="w-full border rounded-lg px-3 py-2 text-sm"
               value={deadline}
+              min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
               onChange={e => setDeadline(e.target.value)}
             />
           </div>
